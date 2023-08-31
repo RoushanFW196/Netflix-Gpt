@@ -1,28 +1,28 @@
 
-export const validatefields=(name,email,password)=>{
+export const validatefields=({full_name,email,password})=>{
     let validdateobj={
         emailerror:'',
         passworderror:'',
         nameerror:'',
     }
-  const isEmailvalid =/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email);
+  const isEmailvalid =email?/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email):null;
 
-  const ispasswordvalid = /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[a-zA-Z!#$%&? "])[a-zA-Z0-9!#$%&?]{8,20}$/.test(password);
+  const ispasswordvalid =password? /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(password):null;
 
- const isnamevalid = /^[a-zA-Z ]{2,30}$/.test(name);
+ const isnamevalid =full_name? /^[a-zA-Z ]{2,30}$/.test(full_name):null;
 
 
-  if(!ispasswordvalid){
-    validdateobj.passworderror='Password is not valid';
+  if(!ispasswordvalid && password){
+    validdateobj.passworderror='Password is not valid.It should be min 8 letter, with at least a symbol, upper and lower case letters and a number.';
   }
 
   
-  if(!isEmailvalid){
+  if(!isEmailvalid && email){
     validdateobj.emailerror='Email ID is not valid';
   }
 
  
-  if(!isnamevalid){
+  if(!isnamevalid && full_name){
     validdateobj.nameerror='name is not valid';
   }
 

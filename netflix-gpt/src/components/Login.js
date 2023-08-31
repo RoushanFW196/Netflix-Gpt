@@ -3,15 +3,21 @@ import Header from "./Header";
 import { openNotificationWithIcon } from "../utils/commonfunction";
 import axios from "axios";
 import { validatefields } from "../utils/validate";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { Auth } from "../utils/firebase.config";
 const initialValues = {
   email: "",
   password: "",
+  full_name: "",
 };
 
 const Login = () => {
   const [logindata, setLogindata] = useState(initialValues);
   const [isSigninForm, setisSigninForm] = useState(true);
-
+  const [errormessage, setErrorMessage] = useState({});
   const toggleSignin = () => {
     setisSigninForm(!isSigninForm);
   };
@@ -23,13 +29,63 @@ const Login = () => {
   };
 
   const handlelogin = async (data) => {
+    const message = validatefields(data);
+    setErrorMessage(message);
 
-   
-    const message=validatefields(data);
-    console.log(message);
-  
+    if (
+      message.emailerror != "" ||
+      message.passworderror != "" ||
+      message.nameerror != ""
+    )
+      return;
 
+    if (isSigninForm) {
+      // signin logic
+      signInWithEmailAndPassword(Auth, logindata.email, logindata.password)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
 
+          if (user.accessToken) {
+            openNotificationWithIcon(
+              "success",
+              "Congratulations, You have successfully Sign In.",
+              3
+            );
+          }
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          if (errorCode) {
+            openNotificationWithIcon("error", errorMessage, 3);
+          }
+        });
+    } else {
+      // signup logic
+
+      createUserWithEmailAndPassword(Auth, logindata.email, logindata.password)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+
+          if (user.accessToken) {
+            openNotificationWithIcon(
+              "success",
+              "Congrats, You have successfully Registered.",
+              3
+            );
+          }
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          if (errorCode) {
+            openNotificationWithIcon("error", errorMessage, 3);
+          }
+        });
+    }
 
     // const response = await axios.post(
     //   `http://localhost:1200/user/signin`,
@@ -61,7 +117,7 @@ const Login = () => {
           className="w-full max-w-sm my-5"
           onSubmit={(e) => {
             e.preventDefault();
-            console.log("Submit", logindata);
+
             handlelogin(logindata);
           }}
         >
@@ -80,6 +136,7 @@ const Login = () => {
                   onChange={handleChange}
                   value={logindata.full_name}
                 />
+                <p className="text-red-500">{errormessage.nameerror}</p>
               </div>
             </div>
           )}
@@ -95,6 +152,7 @@ const Login = () => {
                 onChange={handleChange}
                 value={logindata.email}
               />
+              <p className="text-red-500">{errormessage.emailerror}</p>
             </div>
           </div>
 
@@ -109,6 +167,7 @@ const Login = () => {
                 onChange={handleChange}
                 value={logindata.password}
               />
+              <p className="text-red-500">{errormessage.passworderror}</p>
             </div>
           </div>
 
