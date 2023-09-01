@@ -7,7 +7,19 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import {useNavigate} from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { addUser, removeUser } from '../reduxstore/userSlice';
+
 import { Auth } from "../utils/firebase.config";
+
+
+
+
+
+
+
+
 const initialValues = {
   email: "",
   password: "",
@@ -18,6 +30,11 @@ const Login = () => {
   const [logindata, setLogindata] = useState(initialValues);
   const [isSigninForm, setisSigninForm] = useState(true);
   const [errormessage, setErrorMessage] = useState({});
+  const user= useSelector((state) => state.user);
+  console.log('user',user)
+  const dispatch = useDispatch();
+  const navigate=useNavigate();
+
   const toggleSignin = () => {
     setisSigninForm(!isSigninForm);
   };
@@ -52,6 +69,8 @@ const Login = () => {
               "Congratulations, You have successfully Sign In.",
               3
             );
+            dispatch(addUser(user.email, user.password));
+            navigate('/browse')
           }
           // ...
         })
@@ -76,6 +95,8 @@ const Login = () => {
               "Congrats, You have successfully Registered.",
               3
             );
+            dispatch(addUser(user));
+            navigate('/browse');
           }
         })
         .catch((error) => {
